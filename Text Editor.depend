@@ -356,7 +356,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1515062533 source:e:\programming\text editor\src\main.cpp
+1516188057 source:e:\programming\text editor\src\main.cpp
 	"settings.h"
 	"text_editor.h"
 	<cstdio>
@@ -372,7 +372,7 @@
 1510136115 e:\programming\text editor\include\texture.h
 	"library.h"
 
-1515062267 e:\programming\text editor\include\text_editor.h
+1516187180 e:\programming\text editor\include\text_editor.h
 	"texture.h"
 	"settings.h"
 	<string>
@@ -384,7 +384,7 @@
 1514547909 source:e:\programming\text editor\src\settings.cpp
 	"settings.h"
 
-1515073081 source:e:\programming\text editor\src\text_editor.cpp
+1516187180 source:e:\programming\text editor\src\text_editor.cpp
 	"text_editor.h"
 
 1510136115 source:e:\programming\text editor\src\texture.cpp

@@ -83,6 +83,15 @@ void Clear_Text_Editor_fonts_and_characters()
  Destroy_Texture(selection_image);
 }
 
+void Text_Editor::Clear()
+{
+ std::vector<std::string>().swap(lines);
+ for(int i=0;i<lines_images.size();i++)
+     Destroy_Texture(lines_images[i]);
+ std::vector<Texture*>().swap(lines_images);
+ cursor_flash_time.stop();
+}
+
 Texture *Text_Editor::Create_Monospaced_TTF_Texture(std::string *_text)
 {
  Texture *aux=Create_Transparent_Texture((_text->size())*CHARACTER_WEIGHT,CHARACTER_HEIGHT);
@@ -129,43 +138,72 @@ void Text_Editor::Load(char *_filename)
  selection_active=false;
 }
 
+void Text_Editor::Print_selection_line(int lin,int start,int end,int j,Texture *_screen)
+{
+ if((start==end && start!=-1) || end==0 || lines_images[lin]==NULL_IMAGE || lines[lin].size()<display_cursor_position_in_text.x)
+    return;
+ ///The whole line is selected
+ if((start==-1 || start==0) && (end==-1 || end==lines[lin].size()-1 || end>=lines[lin].size()-1))
+    {
+     Apply_Stretched_Texture(area_on_screen.x,area_on_screen.y+j*CHARACTER_HEIGHT,
+                             std::min(lines_images[lin]->w-display_cursor_position_on_screen.x,area_on_screen.w),std::min(lines_images[lin]->h,area_on_screen.h),
+                             selection_image,_screen);
+     return;
+    }
+ ///from beginning
+ if(end==-1)
+    {
+     int w=std::min(lines_images[lin]->w,display_cursor_position_in_text.x*CHARACTER_WEIGHT+area_on_screen.w)-start*CHARACTER_WEIGHT;
+     int x=area_on_screen.x+std::max(start-display_cursor_position_in_text.x,0)*CHARACTER_WEIGHT;
+     Apply_Stretched_Texture(x,area_on_screen.y+j*CHARACTER_HEIGHT,
+                             w,std::min(lines_images[lin]->h,area_on_screen.h),
+                             selection_image,_screen);
+     return;
+    }
+ if(start==-1)
+    {
+     int w=std::min((end-display_cursor_position_in_text.x)*CHARACTER_WEIGHT,area_on_screen.w);
+     Apply_Stretched_Texture(area_on_screen.x,area_on_screen.y+j*CHARACTER_HEIGHT,
+                             w,std::min(lines_images[lin]->h,area_on_screen.h),
+                             selection_image,_screen);
+     return;
+    }
+ if(start!=-1 && end!=-1)
+    {
+     int x=area_on_screen.x+std::max(0,(start-display_cursor_position_in_text.x)*CHARACTER_WEIGHT);
+     int w=area_on_screen.w-x+area_on_screen.x-std::max(0,(display_cursor_position_in_text.x-end)*CHARACTER_WEIGHT+area_on_screen.w);
+     Apply_Stretched_Texture(x,area_on_screen.y+j*CHARACTER_HEIGHT,
+                             w,std::min(lines_images[lin]->h,area_on_screen.h),
+                             selection_image,_screen);
+    }
+}
+
 void Text_Editor::Print_selection(Texture *_screen)
 {
  if(selection_start_in_text.x==selection_end_in_text.x && selection_start_in_text.y==selection_end_in_text.y)
     return;
  if(selection_start_in_text.y==selection_end_in_text.y)
     {
-     Apply_Stretched_Texture(area_on_screen.x+selection_start_in_text.x*CHARACTER_WEIGHT,area_on_screen.y+selection_start_in_text.y*CHARACTER_HEIGHT,
-                             (selection_end_in_text.x-selection_start_in_text.x)*CHARACTER_WEIGHT,CHARACTER_HEIGHT,
-                             selection_image,_screen);
+     if(display_cursor_position_in_text.x>=selection_end_in_text.x || display_cursor_position_in_text.x+area_on_screen.w/CHARACTER_WEIGHT<selection_start_in_text.x)
+        return;
+     Print_selection_line(selection_start_in_text.y,selection_start_in_text.x,selection_end_in_text.x,selection_start_in_text.y-display_cursor_position_in_text.y,_screen);
      return;
     }
- Apply_Stretched_Texture(area_on_screen.x+selection_start_in_text.x*CHARACTER_WEIGHT,area_on_screen.x+selection_start_in_text.y*CHARACTER_HEIGHT,
-                         (lines[selection_start_in_text.y].size()-selection_start_in_text.x)*CHARACTER_WEIGHT,CHARACTER_HEIGHT,
-                         selection_image,_screen);
- for(int i=selection_start_in_text.y+1;i<selection_end_in_text.y;i++)
+ Print_selection_line(selection_start_in_text.y,selection_start_in_text.x,-1,selection_start_in_text.y-display_cursor_position_in_text.y,_screen);
+ for(int i=selection_start_in_text.y+1,j=selection_start_in_text.y-display_cursor_position_in_text.y+1  ;i<selection_end_in_text.y;i++,j++)
      {
-      ///printf("%.60s\n",lines[i].c_str()+display_cursor_position_in_text.x);
-      if(lines_images[i]!=NULL_IMAGE)
-         {
-          Apply_Stretched_Texture(area_on_screen.x,area_on_screen.y+i*CHARACTER_HEIGHT,
-                                  std::min(lines_images[i]->w,area_on_screen.w),std::min(lines_images[i]->h,area_on_screen.h),
-                                  selection_image,_screen);
-         }
+      Print_selection_line(i,-1,-1,j,_screen);
      }
- Apply_Stretched_Texture(area_on_screen.x,area_on_screen.y+selection_end_in_text.y*CHARACTER_HEIGHT,
-                         (selection_end_in_text.x)*CHARACTER_WEIGHT,CHARACTER_HEIGHT,
-                         selection_image,_screen);
+ Print_selection_line(selection_end_in_text.y,-1,selection_end_in_text.x,selection_end_in_text.y-display_cursor_position_in_text.y,_screen);
 }
 
 void Text_Editor::Print(Texture *_screen)
 {
  Apply_Texture(area_on_screen.x,area_on_screen.y,area_on_screen.w,area_on_screen.h,background_image,_screen);
- for(int i=display_cursor_position_in_text.y,j=0;i<lines.size() && j*CHARACTER_HEIGHT<=area_on_screen.h;i++)
+ for(int i=display_cursor_position_in_text.y,j=0;i<lines.size() && (j+1)*CHARACTER_HEIGHT<=area_on_screen.h;i++,j++)
      {
-      ///printf("%.60s\n",lines[i].c_str()+display_cursor_position_in_text.x);
       if(lines_images[i]!=NULL_IMAGE)
-         Apply_Texture(display_cursor_position_on_screen.x,0,area_on_screen.x,i*CHARACTER_HEIGHT+area_on_screen.y,std::min(lines_images[i]->w-display_cursor_position_on_screen.x,area_on_screen.w),std::min(lines_images[i]->h,area_on_screen.h),lines_images[i],_screen);
+         Apply_Texture(display_cursor_position_on_screen.x,0,area_on_screen.x,j*CHARACTER_HEIGHT+area_on_screen.y,std::min(lines_images[i]->w-display_cursor_position_on_screen.x,area_on_screen.w),std::min(lines_images[i]->h,area_on_screen.h),lines_images[i],_screen);
      }
  if(selection_active)
     Print_selection(_screen);
@@ -191,7 +229,7 @@ void Text_Editor::Write_Text(char *_text)
  Destroy_Texture(new_text);
  Destroy_Texture(lines_images[cursor_position_in_text.y]);
  lines_images[cursor_position_in_text.y]=aux;
- lines[cursor_position_in_text.y].insert(std::max(0,cursor_position_in_text.x-1),_text);
+ lines[cursor_position_in_text.y].insert(std::max(0,cursor_position_in_text.x),_text);
  cursor_position_in_text.x+=len;
  cursor_position_on_screen.x+=len*CHARACTER_WEIGHT;
 }
@@ -232,10 +270,6 @@ void Text_Editor::Delete_Character()
     }
  else
     {
-     //Texture *aux;
-     //aux=Create_Transparent_Texture(lines_images.w-characters_images[lines[cursor_position_in_text.y][cursor_position_in_text.x-1]]->w,CHARACTER_HEIGHT);
-     //Apply_Texture(0,0,)
-     char ch=lines[cursor_position_in_text.y][cursor_position_in_text.x-1];
      lines[cursor_position_in_text.y].erase(lines[cursor_position_in_text.y].begin()+cursor_position_in_text.x-1);
      Texture *aux=NULL_IMAGE;
      int w=lines_images[cursor_position_in_text.y]->w,size=lines[cursor_position_in_text.y].size();
@@ -298,19 +332,24 @@ bool Is_Bigger(SDL_Rect a,SDL_Rect b)
  return false;
 }
 
-void Text_Editor::Update_selection()
+void Text_Editor::Update_selection(SDL_Rect _initial,SDL_Rect _final_in_text,SDL_Rect _final_on_screen)
 {
  if(selection_started)
     {
-     if(Is_Bigger(cursor_position_in_text,selection_end_in_text))
+     if(_initial.x==selection_start_in_text.x && _initial.y==selection_start_in_text.y)
         {
-         selection_end_in_text=cursor_position_in_text;
-         selection_end_on_screen=cursor_position_on_screen;
+         selection_start_in_text=_final_in_text;
+         selection_start_on_screen=_final_on_screen;
         }
      else
         {
-         selection_start_in_text=cursor_position_in_text;
-         selection_start_on_screen=cursor_position_on_screen;
+         selection_end_in_text=_final_in_text;
+         selection_end_on_screen=_final_on_screen;
+        }
+     if(Is_Bigger(selection_start_in_text,selection_end_in_text))
+        {
+         std::swap(selection_start_in_text,selection_end_in_text);
+         std::swap(selection_start_on_screen,selection_end_on_screen);
         }
     }
  else
@@ -323,15 +362,16 @@ void Text_Editor::Update_display_cursor()
 {
  if(cursor_position_on_screen.x-display_cursor_position_on_screen.x>area_on_screen.w)
     {
-     display_cursor_position_in_text.x++;
-     display_cursor_position_on_screen.x+=CHARACTER_WEIGHT;
+     int dif=(cursor_position_on_screen.x-display_cursor_position_on_screen.x-area_on_screen.w)/CHARACTER_WEIGHT+1;
+     display_cursor_position_in_text.x+=dif;
+     display_cursor_position_on_screen.x+=dif*CHARACTER_WEIGHT;
     }
  if(cursor_position_on_screen.x<display_cursor_position_on_screen.x)
     {
-     display_cursor_position_in_text.x=std::max(cursor_position_in_text.x-area_on_screen.w/2,0);
-     display_cursor_position_on_screen.x=std::max(cursor_position_in_text.x-area_on_screen.w/2,0)*CHARACTER_WEIGHT;
+     display_cursor_position_in_text.x=std::max(cursor_position_in_text.x-(area_on_screen.w/CHARACTER_WEIGHT)/2,0);
+     display_cursor_position_on_screen.x=std::max(cursor_position_in_text.x*CHARACTER_WEIGHT-area_on_screen.w/2,0);
     }
- if(cursor_position_on_screen.y-display_cursor_position_on_screen.y>area_on_screen.h)
+ if(cursor_position_on_screen.y-display_cursor_position_on_screen.y>area_on_screen.h-CHARACTER_HEIGHT)
     {
      display_cursor_position_in_text.y++;
      display_cursor_position_on_screen.y+=CHARACTER_HEIGHT;
@@ -347,7 +387,6 @@ void Text_Editor::Handle_Events(SDL_Event *event,Texture *_screen)
 {
  if(event->key.type==SDL_KEYDOWN)
     {
-     //text_typed_modified=false;
      if(event->key.keysym.scancode==SDL_SCANCODE_ESCAPE)
         quit=true;
      if(event->key.keysym.scancode==SDL_SCANCODE_BACKSPACE)
@@ -358,6 +397,7 @@ void Text_Editor::Handle_Events(SDL_Event *event,Texture *_screen)
             Delete_Character();
         }
      bool cursor_moved=false;
+     SDL_Rect last_cursor_position_in_text=cursor_position_in_text;
      if(event->key.keysym.scancode==SDL_SCANCODE_LEFT)
         {
          if(cursor_position_in_text.x==0)
@@ -427,7 +467,7 @@ void Text_Editor::Handle_Events(SDL_Event *event,Texture *_screen)
             }
         }
      if(cursor_moved)
-        Update_selection();
+        Update_selection(last_cursor_position_in_text,cursor_position_in_text,cursor_position_on_screen);
      if(event->key.keysym.scancode==SDL_SCANCODE_TAB)
         {
          Write_Text(TAB_STRING);
@@ -446,8 +486,6 @@ void Text_Editor::Handle_Events(SDL_Event *event,Texture *_screen)
         {
          std::string new_line;
          new_line.append(lines[cursor_position_in_text.y].begin()+cursor_position_in_text.x,lines[cursor_position_in_text.y].end());
-         char haha[100],haha1[100];
-         strcpy(haha,new_line.c_str());
          Texture *aux;
          if(new_line.size()-1!=0)
             {
@@ -460,7 +498,6 @@ void Text_Editor::Handle_Events(SDL_Event *event,Texture *_screen)
             }
          lines.insert(lines.begin()+cursor_position_in_text.y+1,new_line);
          lines_images.insert(lines_images.begin()+cursor_position_in_text.y+1,aux);
-         strcpy(haha1,lines[cursor_position_in_text.y].c_str());
          if(lines[cursor_position_in_text.y].size()-new_line.size()!=0)
             {
              aux=Create_Transparent_Texture((lines[cursor_position_in_text.y].size()-new_line.size())*CHARACTER_WEIGHT,CHARACTER_HEIGHT);
@@ -486,7 +523,6 @@ void Text_Editor::Handle_Events(SDL_Event *event,Texture *_screen)
         {
          if(event->key.keysym.scancode==SDL_SCANCODE_LSHIFT || event->key.keysym.scancode==SDL_SCANCODE_RSHIFT)
             {
-             //Update_selection();
              selection_started=false;
             }
         }
@@ -514,4 +550,18 @@ void Text_Editor::Start(SDL_Rect *_area_on_screen,Texture *_screen)
         SDL_Delay(100);
        }
  SDL_StopTextInput();
+ Save_file();
+}
+
+void Text_Editor::Save_file(char *_filename)
+{
+ char path[TEXT_LENGTH_MAX]={NULL};
+ strcat(path,"text editor/files/saved/");
+ strcat(path,_filename==NULL?filename:_filename);
+ FILE *out=fopen(path,"w");
+ for(int i=0;i<lines.size();i++)
+     {
+      fprintf(out,"%s",lines[i].c_str());
+     }
+ fclose(out);
 }

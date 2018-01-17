@@ -61,5 +61,6 @@ int main( int argc, char *args[] )
  test.Load("test1.txt");
  SDL_Rect display_area={5,5,RESOLUTION_W/2,RESOLUTION_H/2};
  test.Start(&display_area,screen);
+ test.Clear();
  return 0;
 }

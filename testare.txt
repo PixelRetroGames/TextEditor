@@ -1,0 +1,115 @@
+#include <cstdio>
+a
+int main()
+{
+ printf("Hello world!");
+ //abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef
+ return 0;
+}
+
+
+#include <cstdio>
+ab
+int main()
+{
+ printf("Hello world!");
+ //abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef
+ return 0;
+}
+
+
+#include <cstdio>
+abc
+int main()
+{
+ printf("Hello world!");
+ //abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef
+ return 0;
+}
+
+
+#include <cstdio>
+abcd
+int main()
+{
+ printf("Hello world!");
+ //abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef
+ return 0;
+}
+
+
+#include <cstdio>
+abcde
+int main()
+{
+ printf("Hello world!");
+ //abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef
+ return 0;
+}
+
+
+#include <cstdio>
+abcdef
+int main()
+{
+ printf("Hello world!");
+ //abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef
+ return 0;
+}
+
+
+#include <cstdio>
+abcdef
+1
+int main()
+{
+ printf("Hello world!");
+ //abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef
+ return 0;
+}
+
+
+#include <cstdio>
+abcdef
+12
+int main()
+{
+ printf("Hello world!");
+ //abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef
+ return 0;
+}
+
+
+#include <cstdio>
+abcdef
+123
+int main()
+{
+ printf("Hello world!");
+ //abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef
+ return 0;
+}
+
+
+#include <cstdio>
+abcdef
+1234
+int main()
+{
+ printf("Hello world!");
+ //abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef
+ return 0;
+}
+
+
+#include <cstdio>
+abcdef
+12345
+int main()
+{
+ printf("Hello world!");
+ //abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef
+ return 0;
+}
+
+

@@ -27,17 +27,20 @@ class Text_Editor
 
  public:
  void Load(char *_filename);
+ void Clear();
  Texture *Create_Monospaced_TTF_Texture(std::string *_text);
  Texture *Create_Monospaced_TTF_Texture(char *_text);
+ void Print_selection_line(int lin,int start,int end,int j,Texture *_screen);
  void Print_selection(Texture *_screen);
  void Print(Texture *_screen);
  void Write_Text(char *_text);
  void Delete_Character();
  void Delete_Selection();
- void Update_selection();
+ void Update_selection(SDL_Rect _initial,SDL_Rect _final_in_text,SDL_Rect _final_on_screen);
  void Update_display_cursor();
  void Handle_Events(SDL_Event *event,Texture *_screen);
  void Start(SDL_Rect *_area_on_screen,Texture *_screen);
+ void Save_file(char *_filename=NULL);
 };
 
 void Load_Text_Editor_fonts_and_characters();
